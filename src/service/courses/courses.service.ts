@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { Course } from 'src/Model/course.entity';
 
 @Injectable()
@@ -20,16 +25,35 @@ export class CoursesService {
   }
 
   findOne(courseId: string) {
-    return this.courses.find((course) => course.id === Number(courseId));
+    const course = this.courses.find(
+      (course) => course.id === Number(courseId),
+    );
+
+    if (!course) {
+      throw new HttpException(
+        `Course #${courseId} not founded`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
   }
   create(createCourseDto: Course) {
-    this.courses.push(createCourseDto);
+    try {
+      this.courses.push(createCourseDto);
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
   }
   update(courseId, updateCourseDto: Course) {
     const indexCourse = this.courses.findIndex(
       (course) => course.id === Number(courseId),
     );
 
+    if (indexCourse === -1) {
+      throw new HttpException(
+        `Couse ${courseId} not founded in our database`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
     this.courses[indexCourse] = updateCourseDto;
   }
 
@@ -38,8 +62,12 @@ export class CoursesService {
       (course) => course.id === Number(courseId),
     );
     //indexCourse pode retornar -1 caso não encontrar nada
-    if (indexCourse >= 0) {
-      this.courses.splice(indexCourse, 1);
+    if (indexCourse === -1) {
+      throw new HttpException(
+        `Couse ${courseId} not founded in our database`,
+        HttpStatus.NOT_FOUND,
+      );
     }
+    this.courses.splice(indexCourse, 1);
   }
 }
