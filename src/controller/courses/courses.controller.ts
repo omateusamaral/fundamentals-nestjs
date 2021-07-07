@@ -3,12 +3,9 @@ import {
   Controller,
   Delete,
   Get,
-  HttpCode,
-  HttpStatus,
   Param,
   Patch,
   Post,
-  Res,
 } from '@nestjs/common';
 import { CoursesService } from 'src/service/courses/courses.service';
 
@@ -16,44 +13,30 @@ import { CoursesService } from 'src/service/courses/courses.service';
 export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
   @Get('list') //passa aqui o endpoint necessário
-  findAll(@Res() response): string {
-    return response.status(200).send('listagem do curso');
+  findAll() {
+    return this.coursesService.findAll();
   }
 
   //parametros de rota
   @Get('show/:courseId')
   findOne(@Param('courseId') courseId: string) {
-    return `um curso número #${courseId}`;
+    return this.coursesService.findOne(courseId);
   }
 
   //metodo de criação
   @Post('create')
-  // pegar uma informação especifica
-  // create(@Body('name') body) {
   create(@Body() body) {
-    return body;
-  }
-
-  //metodo http status code
-  @Post('create/status')
-  //httpsStatus tem todos status code
-  @HttpCode(HttpStatus.NO_CONTENT)
-  createStatus(@Body() body) {
-    return body;
+    return this.coursesService.create(body);
   }
 
   //requisições patch, put e delete
-
   @Patch(':courseId')
-  update(
-    @Param('courseId') courseId: string,
-    @Body() { name, description, price },
-  ) {
-    return `Atualização do curso #${courseId} ${name}, ${description},${price}`;
+  update(@Param('courseId') courseId: string, @Body() body) {
+    return this.coursesService.update(courseId, body);
   }
 
   @Delete(':courseId')
   remove(@Param('courseId') courseId: string) {
-    return `curso #${courseId} deletado com sucesso `;
+    return this.coursesService.delete(courseId);
   }
 }
