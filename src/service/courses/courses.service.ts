@@ -40,6 +40,7 @@ export class CoursesService {
   create(createCourseDto: any) {
     try {
       this.courses.push(createCourseDto);
+      return createCourseDto;
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
