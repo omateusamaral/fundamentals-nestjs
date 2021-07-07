@@ -4,8 +4,6 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { CreateCourseDto } from 'src/controller/courses/dto/create-course.dto';
-import { UpdateCourseDto } from 'src/controller/courses/dto/update-course.dto';
 import { Course } from 'src/Model/course.entity';
 
 @Injectable()
