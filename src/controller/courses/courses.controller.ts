@@ -1,13 +1,15 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 
-@Controller('courses')
+@Controller('courses') //aqui a rota
 export class CoursesController {
   @Get('list') //passa aqui o endpoint necessário
   findAll(): string {
     return 'Listagem de cursos';
   }
-  @Get('show')
-  findOne(): string {
-    return 'um curso';
+
+  //parametros de rota
+  @Get('show/:courseId')
+  findOne(@Param('courseId') courseId: string) {
+    return `um curso número #${courseId}`;
   }
 }
