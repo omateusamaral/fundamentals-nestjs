@@ -4,6 +4,8 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
+import { CreateCourseDto } from 'src/controller/courses/dto/create-course.dto';
+import { UpdateCourseDto } from 'src/controller/courses/dto/update-course.dto';
 import { Course } from 'src/Model/course.entity';
 
 @Injectable()
@@ -37,14 +39,14 @@ export class CoursesService {
     }
     return course;
   }
-  create(createCourseDto: Course) {
+  create(createCourseDto: any) {
     try {
       this.courses.push(createCourseDto);
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
   }
-  update(courseId, updateCourseDto: Course) {
+  update(courseId, updateCourseDto: any) {
     const indexCourse = this.courses.findIndex(
       (course) => course.id === Number(courseId),
     );

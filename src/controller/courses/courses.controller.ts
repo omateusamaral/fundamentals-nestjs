@@ -8,6 +8,8 @@ import {
   Post,
 } from '@nestjs/common';
 import { CoursesService } from 'src/service/courses/courses.service';
+import { CreateCourseDto } from './dto/create-course.dto';
+import { UpdateCourseDto } from './dto/update-course.dto';
 
 @Controller('courses') //aqui a rota
 export class CoursesController {
@@ -25,13 +27,13 @@ export class CoursesController {
 
   //metodo de criação
   @Post('create')
-  create(@Body() body) {
+  create(@Body() body: CreateCourseDto) {
     return this.coursesService.create(body);
   }
 
   //requisições patch, put e delete
   @Patch(':courseId')
-  update(@Param('courseId') courseId: string, @Body() body) {
+  update(@Param('courseId') courseId: string, @Body() body: UpdateCourseDto) {
     return this.coursesService.update(courseId, body);
   }
 
