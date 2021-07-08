@@ -1,6 +1,15 @@
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+@Entity('courses')
 export class Course {
-  public id: number;
-  public name: string;
-  public description: string;
-  public tags: string[];
+  @PrimaryGeneratedColumn('uuid')
+  id: number;
+
+  @Column()
+  name: string;
+
+  @Column()
+  description: string;
+
+  @Column('json', { nullable: true })
+  tags: string[];
 }
