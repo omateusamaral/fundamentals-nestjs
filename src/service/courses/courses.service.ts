@@ -41,6 +41,16 @@ export class CoursesService {
     }
   }
   async update(courseId: string, updateCourseDto: UpdateCourseDto) {
+    const course = await this.courseRepository.findOne({
+      where: {
+        id: courseId,
+      },
+    });
+
+    if (!course) {
+      throw new NotFoundException('Course not founded in our database');
+    }
+
     await this.courseRepository
       .createQueryBuilder()
       .update()
@@ -64,6 +74,6 @@ export class CoursesService {
       throw new NotFoundException('Course not founded in our database');
     }
 
-    return this.courseRepository.remove(course);
+    await this.courseRepository.remove(course);
   }
 }
