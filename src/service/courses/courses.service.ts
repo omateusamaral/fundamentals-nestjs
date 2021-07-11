@@ -21,7 +21,9 @@ export class CoursesService {
   ) {}
 
   findAll() {
-    return this.courseRepository.find();
+    return this.courseRepository.find({
+      relations: ['tags'],
+    });
   }
 
   findOne(courseId: string) {
@@ -29,6 +31,7 @@ export class CoursesService {
       where: {
         id: courseId,
       },
+      relations: ['tags'],
     });
 
     if (!course) {
