@@ -4,16 +4,20 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateCourseDto } from 'src/controller/courses/dto/create-course.dto';
 import { UpdateCourseDto } from 'src/controller/courses/dto/update-course.dto';
 import { Course } from 'src/Model/course.entity';
-import { Repository } from 'typeorm';
+import { Tag } from 'src/Model/tag.entity';
 
 @Injectable()
 export class CoursesService {
   constructor(
     @InjectRepository(Course)
     private readonly courseRepository: Repository<Course>,
+
+    @InjectRepository(Tag)
+    private readonly tagRepository: Repository<Tag>,
   ) {}
 
   findAll() {
@@ -32,35 +36,38 @@ export class CoursesService {
     }
     return course;
   }
-  create(createCourseDto: CreateCourseDto) {
+  async create(createCourseDto: CreateCourseDto) {
     try {
-      const createdCourse = this.courseRepository.create(createCourseDto);
+      const tags = await Promise.all(
+        createCourseDto.tags.map((name) => this.preloadTagByName(name)),
+      );
+
+      const createdCourse = this.courseRepository.create({
+        ...createCourseDto,
+        tags,
+      });
       return this.courseRepository.save(createdCourse);
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
   }
   async update(courseId: string, updateCourseDto: UpdateCourseDto) {
-    const course = await this.courseRepository.findOne({
-      where: {
-        id: courseId,
-      },
+    const tags =
+      updateCourseDto.tags &&
+      (await Promise.all(
+        updateCourseDto.tags.map((name) => this.preloadTagByName(name)),
+      ));
+
+    const course = await this.courseRepository.preload({
+      id: courseId,
+      ...updateCourseDto,
+      tags,
     });
 
     if (!course) {
-      throw new NotFoundException('Course not founded in our database');
+      throw new NotFoundException(`Course ID  ${courseId} not found`);
     }
-
-    await this.courseRepository
-      .createQueryBuilder()
-      .update()
-      .set({
-        ...updateCourseDto,
-      })
-      .where('id=:courseId', {
-        courseId,
-      })
-      .execute();
+    return this.courseRepository.save(course);
   }
 
   async delete(courseId: string) {
@@ -75,5 +82,15 @@ export class CoursesService {
     }
 
     await this.courseRepository.remove(course);
+  }
+
+  private async preloadTagByName(name: string): Promise<Tag> {
+    const tag = await this.tagRepository.findOne({ name });
+
+    if (tag) {
+      return tag;
+    }
+
+    return this.tagRepository.create({ name });
   }
 }
